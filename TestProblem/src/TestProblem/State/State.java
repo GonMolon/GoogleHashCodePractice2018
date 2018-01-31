@@ -1,18 +1,22 @@
 package TestProblem.State;
 
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class State {
 
     private int area;
-    private int size;
+    private ArrayList<Slice> slices;
     private boolean is_synced;
+
+    static PizzaLayout pizza;
 
 
     public static State createInitialState(Stream<String> input) {
 
-        PizzaLayout layout = new PizzaLayout(input);
+        pizza = new PizzaLayout(input);
         State state = new State();
+        state.createInitialSlices((int) (Math.random() * pizza.R));
 
         state.is_synced = true;
         return state;
@@ -20,8 +24,16 @@ public class State {
 
     private State() {
         is_synced = false;
-        size = 0;
+        slices = new ArrayList<>();
         area = 0;
+    }
+
+    private void createInitialSlices(int first_row) {
+        for(int i = 0; i < pizza.R; ++i) {
+            for(int j = 0; j < pizza.C; ++j) {
+
+            }
+        }
     }
 
     public double getArea() {
@@ -29,10 +41,14 @@ public class State {
     }
 
     public int getNumSlices() {
-        return size;
+        return slices.size();
     }
 
     public void sync() {
+        if(!is_synced) {
+//            Apply modification of construction of this state into pizza layout
+        }
         is_synced = true;
     }
+
 }
