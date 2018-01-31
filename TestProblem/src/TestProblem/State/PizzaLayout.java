@@ -5,8 +5,8 @@ import java.util.stream.Stream;
 
 public class PizzaLayout {
 
-    protected static int R;
-    protected static int C;
+    public static int R;
+    public static int C;
 
     public Cell[][] layout;
 
@@ -57,6 +57,10 @@ public class PizzaLayout {
         }
 
         return info;
+    }
+
+    public double getArea() {
+        return R * C;
     }
 
     public class InfoArea {

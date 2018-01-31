@@ -1,6 +1,5 @@
 package TestProblem.State;
 
-import javax.security.sasl.SaslServer;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
@@ -10,7 +9,7 @@ public class State {
     private ArrayList<Slice> slices;
     private boolean is_synced;
 
-    static PizzaLayout pizza;
+    public static PizzaLayout pizza;
 
 
     public static State createInitialState(Stream<String> input) {

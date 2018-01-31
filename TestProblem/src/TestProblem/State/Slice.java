@@ -124,7 +124,7 @@ public class Slice {
         return done;
     }
 
-    private boolean decraseBorder(int r1, int r2, int c1, int c2) {
+    private boolean decreaseBorder(int r1, int r2, int c1, int c2) {
         assert is_created;
 
         PizzaLayout.InfoArea info = State.pizza.getInfoArea(r1, r2, c1, c2);
@@ -141,7 +141,7 @@ public class Slice {
     }
 
     public boolean decreaseTop() {
-        boolean done = decraseBorder(r1, r1, c1, c2);
+        boolean done = decreaseBorder(r1, r1, c1, c2);
         if(done) {
             ++r1;
         }
@@ -149,7 +149,7 @@ public class Slice {
     }
 
     public boolean decraseBottom() {
-        boolean done = decraseBorder(r2, r2, c1, c2);
+        boolean done = decreaseBorder(r2, r2, c1, c2);
         if(done) {
             --r2;
         }
@@ -157,7 +157,7 @@ public class Slice {
     }
 
     public boolean decreaseRight() {
-        boolean done = decraseBorder(r1, r2, c2, c2);
+        boolean done = decreaseBorder(r1, r2, c2, c2);
         if(done) {
             --c2;
         }
@@ -165,7 +165,7 @@ public class Slice {
     }
 
     public boolean decraseLeft() {
-        boolean done = decraseBorder(1, r2, c1, c1);
+        boolean done = decreaseBorder(1, r2, c1, c1);
         if(done) {
             ++c1;
         }

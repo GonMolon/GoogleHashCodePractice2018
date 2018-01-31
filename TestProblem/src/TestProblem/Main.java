@@ -48,6 +48,7 @@ public class Main {
 
                     State final_state = ((State)search.getGoalState());
                     System.out.println("Area: " + final_state.getArea());
+                    System.out.println("Success ratio: " + final_state.getArea() / State.pizza.getArea());
                     System.out.println("Num of slices: " + final_state.getNumSlices());
                     System.out.println("Execution time: " + total_time);
                     System.out.println("-----------------------------");
