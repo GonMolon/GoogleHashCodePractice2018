@@ -6,8 +6,7 @@ import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
 import aima.search.informed.HillClimbingSearch;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,6 +38,7 @@ public class Main {
 
             Problem problem = new Problem(initial_state, new SuccessorsGenerator(), o -> false, new HeuristicCalculator());
 
+            State best_solution = null;
             for(Search search : new Search[]{new HillClimbingSearch()}) {
                 System.out.println("Starting local search using algorithm: " + search.getClass().getName());
                 long start_time = System.currentTimeMillis();
@@ -46,15 +46,26 @@ public class Main {
                     SearchAgent agent = new SearchAgent(problem, search);
                     long total_time = System.currentTimeMillis() - start_time;
 
-                    State finalState = ((State)search.getGoalState());
-                    System.out.println("Area: " + finalState.getArea());
-                    System.out.println("Num of slices: " + finalState.getNumSlices());
+                    State final_state = ((State)search.getGoalState());
+                    System.out.println("Area: " + final_state.getArea());
+                    System.out.println("Num of slices: " + final_state.getNumSlices());
                     System.out.println("Execution time: " + total_time);
                     System.out.println("-----------------------------");
 
+                    if(best_solution == null || best_solution.getArea() < final_state.getArea()) {
+                        best_solution = final_state;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+
+            try {
+                PrintWriter output = new PrintWriter(f.getPath().replace(".in", ".out"), "UTF-8");
+                output.println(best_solution.toString());
+                output.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
