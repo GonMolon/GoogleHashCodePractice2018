@@ -95,6 +95,31 @@ public class PizzaLayout {
         }
     }
 
+    public void to_string(ArrayList<Slice> slices) {
+        char[][] output = new char[R][C];
+        for(int i = 0; i < R; ++i) {
+            for(int j = 0; j < C; ++j) {
+                Ingredient c = layout[i][j].ingredient;
+                output[i][j] = c.toString().charAt(0);
+            }
+        }
+        for(int i = 0; i < slices.size(); ++i) {
+            Slice slice = slices.get(i);
+            for(int r = slice.r1; r <= slice.r2; ++r) {
+                for(int c = slice.c1; c <= slice.c2; ++c) {
+                    String s = String.valueOf(i);
+                    output[r][c] = s.charAt(s.length() - 1);
+                }
+            }
+        }
+        for(int i = 0; i < R; ++i) {
+            for(int j = 0; j < C; ++j) {
+                System.out.print(output[i][j]);
+            }
+            System.out.print('\n');
+        }
+    }
+
     public class Cell {
         public Ingredient ingredient;
         public boolean used;
