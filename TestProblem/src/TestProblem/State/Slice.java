@@ -32,11 +32,36 @@ public class Slice {
     }
 
     public int getArea() {
-        return (r2 - r1) * (c2 - c1);
+        return (r2 - r1 + 1) * (c2 - c1 + 1);
+    }
+
+    public void expand() {
+        if(!State.pizza.getInfoArea(r1, r2, c1, c2).is_free) {
+            return;
+        }
+        boolean can_top = true;
+        boolean can_bottom = true;
+        boolean can_right = true;
+        boolean can_left = true;
+        while(can_top || can_bottom || can_right || can_left) {
+            // TODO try to change order and experiment results
+            if(can_top) {
+                can_top = increaseTop();
+            }
+            if(can_left) {
+                can_left = increaseLeft();
+            }
+            if(can_right) {
+                can_right = increaseRight();
+            }
+            if(can_bottom) {
+                can_bottom = increaseBottom();
+            }
+        }
     }
 
     public boolean isValid() {
-        assert (r2 - r1) * (c2 - c1) == n_M + n_T;
+        assert getArea() == n_M + n_T;
         boolean is_valid = n_T >= MIN_AREA && n_M >= MIN_AREA && n_T + n_M <= MAX_AREA;
 
         if(is_valid && !is_created) {
@@ -47,8 +72,9 @@ public class Slice {
         return is_valid;
     }
 
-    private boolean increaseBorder(int r1, int r2, int c1, int c2) {
-        if(n_T + n_M + (c2 - c1) > MAX_AREA) {
+    private boolean increaseBorder(int r1, int r2, int c1, int c2, boolean vertical) {
+        int incr_area = vertical ? (c2 - c1 + 1) : (r2 - r1 + 1);
+        if(n_T + n_M + incr_area > MAX_AREA) {
             return false;
         }
         PizzaLayout.InfoArea info = State.pizza.getInfoArea(r1, r2, c1, c2);
@@ -67,7 +93,7 @@ public class Slice {
     }
 
     public boolean increaseTop() {
-        boolean done = increaseBorder(r1 - 1, r1 - 1, c1, c2);
+        boolean done = increaseBorder(r1 - 1, r1 - 1, c1, c2, true);
         if(done) {
             --r1;
         }
@@ -75,7 +101,7 @@ public class Slice {
     }
 
     public boolean increaseBottom() {
-        boolean done = increaseBorder(r2 + 1, r2 + 1, c1, c2);
+        boolean done = increaseBorder(r2 + 1, r2 + 1, c1, c2, true);
         if(done) {
             ++r2;
         }
@@ -83,7 +109,7 @@ public class Slice {
     }
 
     public boolean increaseRight() {
-        boolean done = increaseBorder(r1, r2, c2 + 1, c2 + 1);
+        boolean done = increaseBorder(r1, r2, c2 + 1, c2 + 1, false);
         if(done) {
             ++c2;
         }
@@ -91,7 +117,7 @@ public class Slice {
     }
 
     public boolean increaseLeft() {
-        boolean done = increaseBorder(r1, r2, c1 - 1, c1 - 1);
+        boolean done = increaseBorder(r1, r2, c1 - 1, c1 - 1, false);
         if(done) {
             --c1;
         }
@@ -148,5 +174,9 @@ public class Slice {
 
     public void removeSlice() {
         State.pizza.setUsedArea(r1, r2, c1, c2, false);
+    }
+
+    public String toString() {
+        return r1 + " " + r2 + " " + c1 + " " + c2;
     }
 }

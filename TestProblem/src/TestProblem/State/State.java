@@ -1,5 +1,6 @@
 package TestProblem.State;
 
+import javax.security.sasl.SaslServer;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
@@ -29,11 +30,18 @@ public class State {
     }
 
     private void createInitialSlices(int first_row) {
+        System.out.println("Creating initial slices");
         for(int i = 0; i < pizza.R; ++i) {
             for(int j = 0; j < pizza.C; ++j) {
-
+                Slice slice = new Slice(i, j);
+                slice.expand();
+                if(slice.isValid()) {
+                    slices.add(slice);
+                    area += slice.getArea();
+                }
             }
         }
+        System.out.println("Initial area: " + area);
     }
 
     public double getArea() {
@@ -49,6 +57,14 @@ public class State {
 //            Apply modification of construction of this state into pizza layout
         }
         is_synced = true;
+    }
+
+    public String toString() {
+        String s = slices.size() + "\n";
+        for(Slice slice : slices) {
+            s += slice.toString() + "\n";
+        }
+        return s;
     }
 
 }
