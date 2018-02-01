@@ -51,16 +51,16 @@ public class Slice {
         while(can_top || can_bottom || can_right || can_left) {
             // TODO try to change order and experiment results
             if(can_top) {
-                can_top = increaseTop().is_possible;
+                can_top = increaseTop().was_possible;
             }
             if(can_left) {
-                can_left = increaseLeft().is_possible;
+                can_left = increaseLeft().was_possible;
             }
             if(can_right) {
-                can_right = increaseRight().is_possible;
+                can_right = increaseRight().was_possible;
             }
             if(can_bottom) {
-                can_bottom = increaseBottom().is_possible;
+                can_bottom = increaseBottom().was_possible;
             }
         }
     }
@@ -75,12 +75,12 @@ public class Slice {
         State.pizza.setUsedArea(r1, r2, c1, c2, used);
     }
 
-    private ChangeLog increaseBorder(int r1, int r2, int c1, int c2, boolean vertical) {
+    private ChangeLog increaseBorder(int r1, int r2, int c1, int c2, boolean vertical, DimensionsModifier modifier) {
         ChangeLog log = new ChangeLog(new Slice(r1, r2, c1, c2), true);
 
         int incr_area = vertical ? (c2 - c1 + 1) : (r2 - r1 + 1);
         if(n_T + n_M + incr_area > MAX_AREA) {
-            log.is_possible = false;
+            log.was_possible = false;
             return log;
         }
         PizzaLayout.InfoArea info = State.pizza.getInfoArea(r1, r2, c1, c2);
@@ -88,47 +88,33 @@ public class Slice {
             n_T += info.n_T;
             n_M += info.n_M;
 
-            log.is_possible = true;
+            log.was_possible = true;
+            modifier.modifyDimension();
+
             return log;
         } else {
-            log.is_possible = false;
+            log.was_possible = false;
             return log;
         }
     }
 
     public ChangeLog increaseTop() {
-        ChangeLog log = increaseBorder(r1 - 1, r1 - 1, c1, c2, true);
-        if(log.is_possible) {
-            --r1;
-        }
-        return log;
+        return increaseBorder(r1 - 1, r1 - 1, c1, c2, true, () -> --r1);
     }
 
     public ChangeLog increaseBottom() {
-        ChangeLog log = increaseBorder(r2 + 1, r2 + 1, c1, c2, true);
-        if(log.is_possible) {
-            ++r2;
-        }
-        return log;
+        return increaseBorder(r2 + 1, r2 + 1, c1, c2, true, () -> ++r2);
     }
 
     public ChangeLog increaseRight() {
-        ChangeLog log = increaseBorder(r1, r2, c2 + 1, c2 + 1, false);
-        if(log.is_possible) {
-            ++c2;
-        }
-        return log;
+        return increaseBorder(r1, r2, c2 + 1, c2 + 1, false, () -> ++c2);
     }
 
     public ChangeLog increaseLeft() {
-        ChangeLog log = increaseBorder(r1, r2, c1 - 1, c1 - 1, false);
-        if(log.is_possible) {
-            --c1;
-        }
-        return log;
+        return increaseBorder(r1, r2, c1 - 1, c1 - 1, false, () -> --c1);
     }
 
-    private ChangeLog decreaseBorder(int r1, int r2, int c1, int c2) {
+    private ChangeLog decreaseBorder(int r1, int r2, int c1, int c2, DimensionsModifier modifier) {
         ChangeLog log = new ChangeLog(new Slice(r1, r2, c1, c2), false);
 
         PizzaLayout.InfoArea info = State.pizza.getInfoArea(r1, r2, c1, c2);
@@ -136,49 +122,39 @@ public class Slice {
             n_T -= info.n_T;
             n_M -= info.n_M;
 
-            log.is_possible = true;
+            log.was_possible = true;
+            modifier.modifyDimension();
+
             return log;
         } else {
-            log.is_possible = false;
+            log.was_possible = false;
             return log;
         }
+    }
+
+    public interface  DimensionsModifier {
+        void modifyDimension();
     }
 
     public ChangeLog decreaseTop() {
-        ChangeLog log = decreaseBorder(r1, r1, c1, c2);
-        if(log.is_possible) {
-            ++r1;
-        }
-        return log;
+        return decreaseBorder(r1, r1, c1, c2, () -> ++r1);
     }
 
-    public ChangeLog decraseBottom() {
-        ChangeLog log = decreaseBorder(r2, r2, c1, c2);
-        if(log.is_possible) {
-            --r2;
-        }
-        return log;
+    public ChangeLog decreaseBottom() {
+        return decreaseBorder(r2, r2, c1, c2, () -> --r2);
     }
 
     public ChangeLog decreaseRight() {
-        ChangeLog log = decreaseBorder(r1, r2, c2, c2);
-        if(log.is_possible) {
-            --c2;
-        }
-        return log;
+        return decreaseBorder(r1, r2, c2, c2, () -> --c2);
     }
 
-    public ChangeLog decraseLeft() {
-        ChangeLog log = decreaseBorder(1, r2, c1, c1);
-        if(log.is_possible) {
-            ++c1;
-        }
-        return log;
+    public ChangeLog decreaseLeft() {
+        return decreaseBorder(r1, r2, c1, c1, () -> ++c1);
     }
 
     public ChangeLog removeSlice() {
         ChangeLog log = new ChangeLog(this, false);
-        log.is_possible = true;
+        log.was_possible = true;
         return log;
     }
 
@@ -195,7 +171,7 @@ public class Slice {
 
     public class ChangeLog {
         public Slice slice;
-        boolean is_possible;
+        boolean was_possible;
         boolean becomes_used;
 
         public ChangeLog(Slice slice, boolean becomes_used) {

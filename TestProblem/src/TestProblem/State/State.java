@@ -22,7 +22,7 @@ public class State {
 
         pizza = new PizzaLayout(input);
         State state = new State();
-        state.createInitialSlices((int) (Math.random() * pizza.R));
+        state.createInitialSlices();
 
         state.is_synced = true;
         return state;
@@ -34,7 +34,7 @@ public class State {
         area = 0;
     }
 
-    private void createInitialSlices(int first_row) {
+    private void createInitialSlices() {
         System.out.println("Creating initial slices");
         for(int i = 0; i < pizza.R; ++i) {
             for(int j = 0; j < pizza.C; ++j) {
@@ -76,21 +76,46 @@ public class State {
         return state;
     }
 
-    public ArrayList<State> generateSuccessors() {
+    private State child = null;
+
+    private ArrayList<State> generateSuccessors() {
         ArrayList<State> successors = new ArrayList<>();
 
-        State child = this.deep_copy();
+        child = this.deep_copy();
         for(int i = 0; i < slices.size(); ++i) {
-            Slice slice = child.slices.get(i);
-            Slice.ChangeLog log = slice.increaseTop();
-            if(log.is_possible) {
-                child.changeLog = log;
-                child.area += log.slice.getArea();
-                successors.add(child);
-                child = this.deep_copy();
-            }
+            generateSuccessor(i, slice -> slice.increaseTop(), successors);
+            generateSuccessor(i, slice -> slice.increaseBottom(), successors);
+            generateSuccessor(i, slice -> slice.increaseRight(), successors);
+            generateSuccessor(i, slice -> slice.increaseLeft(), successors);
+            generateSuccessor(i, slice -> slice.decreaseTop(), successors);
+            generateSuccessor(i, slice -> slice.decreaseBottom(), successors);
+            generateSuccessor(i, slice -> slice.decreaseRight(), successors);
+            generateSuccessor(i, slice -> slice.decreaseLeft(), successors);
         }
+        child = null;
         return successors;
+    }
+
+    private void generateSuccessor(int slice_id, SliceModifier modifier, ArrayList<State> successors) {
+        Slice slice = child.slices.get(slice_id);
+
+        Slice.ChangeLog log = modifier.modify(slice);
+
+        if(log.was_possible) {
+            int new_area = log.slice.getArea();
+            if(!log.becomes_used) {
+                new_area = -new_area;
+            }
+            child.area += new_area;
+            child.changeLog = log;
+
+            successors.add(child);
+            child = this.deep_copy();
+        }
+    }
+
+    private interface SliceModifier {
+        Slice.ChangeLog modify(Slice slice);
     }
 
     public String toString() {
@@ -111,9 +136,11 @@ public class State {
 
             List<Successor> successors = new ArrayList<>();
             for(State child : state.generateSuccessors()) {
-                System.out.println(child.area);
                 successors.add(new Successor("", child));
             }
+
+            System.out.println(successors.size() + " successors generated");
+
             return successors;
         }
     }
