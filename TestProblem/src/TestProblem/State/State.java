@@ -5,32 +5,36 @@ import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class State {
 
+    public static PizzaLayout pizza;
+    public static int lastId = 0;
+    public static HashMap<Integer, Slice> slices;
+
     private int area;
-    private ArrayList<Slice> slices;
     private boolean is_synced;
 
-    public static PizzaLayout pizza;
-    private Slice.ChangeLog changeLog;
+    private ChangeLog changeLog;
 
 
     public static State createInitialState(Stream<String> input) {
 
         pizza = new PizzaLayout(input);
+        slices = new HashMap<>();
+
         State state = new State();
         state.createInitialSlices();
-
         state.is_synced = true;
+
         return state;
     }
 
     private State() {
         is_synced = false;
-        slices = new ArrayList<>();
         area = 0;
     }
 
@@ -38,12 +42,10 @@ public class State {
         System.out.println("Creating initial slices");
         for(int i = 0; i < pizza.R; ++i) {
             for(int j = 0; j < pizza.C; ++j) {
-                Slice slice = new Slice(i, j);
-                slice.expand();
-                if(slice.isValid()) {
-                    slices.add(slice);
-                    area += slice.getArea();
-                    slice.writeIntoPizza(true);
+                ChangeLog log = Slice.createSlice(lastId, i, j);
+                if(log.was_possible) {
+                    log.apply();
+                    area += log.remaining_area.getArea();
                 }
             }
         }
@@ -65,44 +67,33 @@ public class State {
         is_synced = true;
     }
 
-    private State deep_copy() {
-        State state = new State();
-        state.area = area;
-        state.is_synced = is_synced;
-        state.changeLog = null;
-        for(Slice slice : slices) {
-            state.slices.add(slice.deep_copy());
-        }
-        return state;
-    }
-
     private State child = null;
 
     private ArrayList<State> generateSuccessors() {
         ArrayList<State> successors = new ArrayList<>();
 
-        child = this.deep_copy();
-        for(int i = 0; i < slices.size(); ++i) {
-            generateSuccessor(i, slice -> slice.increaseTop(), successors);
-            generateSuccessor(i, slice -> slice.increaseBottom(), successors);
-            generateSuccessor(i, slice -> slice.increaseRight(), successors);
-            generateSuccessor(i, slice -> slice.increaseLeft(), successors);
-            generateSuccessor(i, slice -> slice.decreaseTop(), successors);
-            generateSuccessor(i, slice -> slice.decreaseBottom(), successors);
-            generateSuccessor(i, slice -> slice.decreaseRight(), successors);
-            generateSuccessor(i, slice -> slice.decreaseLeft(), successors);
+        child = shadow_copy();
+        for(int id : slices.keySet()) {
+            generateSuccessor(id, slice -> slice.increaseTop(), successors);
+            generateSuccessor(id, slice -> slice.increaseBottom(), successors);
+            generateSuccessor(id, slice -> slice.increaseRight(), successors);
+            generateSuccessor(id, slice -> slice.increaseLeft(), successors);
+            generateSuccessor(id, slice -> slice.decreaseTop(), successors);
+            generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
+            generateSuccessor(id, slice -> slice.decreaseRight(), successors);
+            generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
         }
         child = null;
         return successors;
     }
 
-    private void generateSuccessor(int slice_id, SliceModifier modifier, ArrayList<State> successors) {
-        Slice slice = child.slices.get(slice_id);
+    private void generateSuccessor(int id, SliceModifier modifier, ArrayList<State> successors) {
+        Slice slice = child.slices.get(id);
 
-        Slice.ChangeLog log = modifier.modify(slice);
+        ChangeLog log = modifier.modify(slice);
 
         if(log.was_possible) {
-            int new_area = log.slice.getArea();
+            int new_area = log.modified_area.getArea();
             if(!log.becomes_used) {
                 new_area = -new_area;
             }
@@ -110,17 +101,25 @@ public class State {
             child.changeLog = log;
 
             successors.add(child);
-            child = this.deep_copy();
+            child = shadow_copy();
         }
     }
 
+    private State shadow_copy() {
+        State state = new State();
+        state.area = area;
+        state.is_synced = false;
+        state.changeLog = null;
+        return state;
+    }
+
     private interface SliceModifier {
-        Slice.ChangeLog modify(Slice slice);
+        ChangeLog modify(Slice slice);
     }
 
     public String toString() {
         String s = slices.size() + "\n";
-        for(Slice slice : slices) {
+        for(Slice slice : slices.values()) {
             s += slice.toString() + "\n";
         }
         return s;
