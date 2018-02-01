@@ -13,11 +13,8 @@ public class Slice {
     public int n_T;
     public int n_M;
 
-    private boolean is_created;
 
     public Slice(int x, int y) {
-        n_T = 0;
-        n_M = 0;
 
         r1 = x;
         r2 = x;
@@ -27,8 +24,16 @@ public class Slice {
 
         n_M = State.pizza.layout[x][y].ingredient == PizzaLayout.Ingredient.M ? 1 : 0;
         n_T = 1 - n_M;
+    }
 
-        is_created = false;
+    public Slice(int r1, int r2, int c1, int c2) {
+        this.r1 = r1;
+        this.r2 = r2;
+        this.c1 = c1;
+        this.c2 = c2;
+
+        n_M = -1;
+        n_T = -1;
     }
 
     public int getArea() {
@@ -46,137 +51,160 @@ public class Slice {
         while(can_top || can_bottom || can_right || can_left) {
             // TODO try to change order and experiment results
             if(can_top) {
-                can_top = increaseTop();
+                can_top = increaseTop().is_possible;
             }
             if(can_left) {
-                can_left = increaseLeft();
+                can_left = increaseLeft().is_possible;
             }
             if(can_right) {
-                can_right = increaseRight();
+                can_right = increaseRight().is_possible;
             }
             if(can_bottom) {
-                can_bottom = increaseBottom();
+                can_bottom = increaseBottom().is_possible;
             }
         }
     }
 
     public boolean isValid() {
         assert getArea() == n_M + n_T;
-        boolean is_valid = n_T >= MIN_AREA && n_M >= MIN_AREA && n_T + n_M <= MAX_AREA;
-
-        if(is_valid && !is_created) {
-            is_created = true;
-            State.pizza.setUsedArea(r1, r2, c1, c2, true);
-        }
-
-        return is_valid;
+        return n_T >= MIN_AREA && n_M >= MIN_AREA && n_T + n_M <= MAX_AREA;
     }
 
-    private boolean increaseBorder(int r1, int r2, int c1, int c2, boolean vertical) {
+    public void writeIntoPizza(boolean used) {
+        assert isValid();
+        State.pizza.setUsedArea(r1, r2, c1, c2, used);
+    }
+
+    private ChangeLog increaseBorder(int r1, int r2, int c1, int c2, boolean vertical) {
+        ChangeLog log = new ChangeLog(new Slice(r1, r2, c1, c2), true);
+
         int incr_area = vertical ? (c2 - c1 + 1) : (r2 - r1 + 1);
         if(n_T + n_M + incr_area > MAX_AREA) {
-            return false;
+            log.is_possible = false;
+            return log;
         }
         PizzaLayout.InfoArea info = State.pizza.getInfoArea(r1, r2, c1, c2);
         if(info.is_free) {
             n_T += info.n_T;
             n_M += info.n_M;
 
-            if(is_created) {
-                State.pizza.setUsedArea(r1, r2, c1, c2, true);
-            }
-
-            return true;
+            log.is_possible = true;
+            return log;
         } else {
-            return false;
+            log.is_possible = false;
+            return log;
         }
     }
 
-    public boolean increaseTop() {
-        boolean done = increaseBorder(r1 - 1, r1 - 1, c1, c2, true);
-        if(done) {
+    public ChangeLog increaseTop() {
+        ChangeLog log = increaseBorder(r1 - 1, r1 - 1, c1, c2, true);
+        if(log.is_possible) {
             --r1;
         }
-        return done;
+        return log;
     }
 
-    public boolean increaseBottom() {
-        boolean done = increaseBorder(r2 + 1, r2 + 1, c1, c2, true);
-        if(done) {
+    public ChangeLog increaseBottom() {
+        ChangeLog log = increaseBorder(r2 + 1, r2 + 1, c1, c2, true);
+        if(log.is_possible) {
             ++r2;
         }
-        return done;
+        return log;
     }
 
-    public boolean increaseRight() {
-        boolean done = increaseBorder(r1, r2, c2 + 1, c2 + 1, false);
-        if(done) {
+    public ChangeLog increaseRight() {
+        ChangeLog log = increaseBorder(r1, r2, c2 + 1, c2 + 1, false);
+        if(log.is_possible) {
             ++c2;
         }
-        return done;
+        return log;
     }
 
-    public boolean increaseLeft() {
-        boolean done = increaseBorder(r1, r2, c1 - 1, c1 - 1, false);
-        if(done) {
+    public ChangeLog increaseLeft() {
+        ChangeLog log = increaseBorder(r1, r2, c1 - 1, c1 - 1, false);
+        if(log.is_possible) {
             --c1;
         }
-        return done;
+        return log;
     }
 
-    private boolean decreaseBorder(int r1, int r2, int c1, int c2) {
-        assert is_created;
+    private ChangeLog decreaseBorder(int r1, int r2, int c1, int c2) {
+        ChangeLog log = new ChangeLog(new Slice(r1, r2, c1, c2), false);
 
         PizzaLayout.InfoArea info = State.pizza.getInfoArea(r1, r2, c1, c2);
         if(n_T - info.n_T >= MIN_AREA && n_M - info.n_M >= MIN_AREA) {
             n_T -= info.n_T;
             n_M -= info.n_M;
 
-            State.pizza.setUsedArea(r1, r2, c1, c2, false);
-
-            return true;
+            log.is_possible = true;
+            return log;
         } else {
-            return false;
+            log.is_possible = false;
+            return log;
         }
     }
 
-    public boolean decreaseTop() {
-        boolean done = decreaseBorder(r1, r1, c1, c2);
-        if(done) {
+    public ChangeLog decreaseTop() {
+        ChangeLog log = decreaseBorder(r1, r1, c1, c2);
+        if(log.is_possible) {
             ++r1;
         }
-        return done;
+        return log;
     }
 
-    public boolean decraseBottom() {
-        boolean done = decreaseBorder(r2, r2, c1, c2);
-        if(done) {
+    public ChangeLog decraseBottom() {
+        ChangeLog log = decreaseBorder(r2, r2, c1, c2);
+        if(log.is_possible) {
             --r2;
         }
-        return done;
+        return log;
     }
 
-    public boolean decreaseRight() {
-        boolean done = decreaseBorder(r1, r2, c2, c2);
-        if(done) {
+    public ChangeLog decreaseRight() {
+        ChangeLog log = decreaseBorder(r1, r2, c2, c2);
+        if(log.is_possible) {
             --c2;
         }
-        return done;
+        return log;
     }
 
-    public boolean decraseLeft() {
-        boolean done = decreaseBorder(1, r2, c1, c1);
-        if(done) {
+    public ChangeLog decraseLeft() {
+        ChangeLog log = decreaseBorder(1, r2, c1, c1);
+        if(log.is_possible) {
             ++c1;
         }
-        return done;
+        return log;
     }
 
-    public void removeSlice() {
-        State.pizza.setUsedArea(r1, r2, c1, c2, false);
+    public ChangeLog removeSlice() {
+        ChangeLog log = new ChangeLog(this, false);
+        log.is_possible = true;
+        return log;
     }
 
     public String toString() {
         return r1 + " " + r2 + " " + c1 + " " + c2;
+    }
+
+    public Slice deep_copy() {
+        Slice slice = new Slice(r1, r2, c1, c2);
+        slice.n_M = n_M;
+        slice.n_T = n_T;
+        return slice;
+    }
+
+    public class ChangeLog {
+        public Slice slice;
+        boolean is_possible;
+        boolean becomes_used;
+
+        public ChangeLog(Slice slice, boolean becomes_used) {
+            this.slice = slice;
+            this.becomes_used = becomes_used;
+        }
+
+        public void apply() {
+            slice.writeIntoPizza(becomes_used);
+        }
     }
 }

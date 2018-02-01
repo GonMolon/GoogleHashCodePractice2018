@@ -36,7 +36,7 @@ public class Main {
 
             State initial_state = State.createInitialState(input);
 
-            Problem problem = new Problem(initial_state, new SuccessorsGenerator(), o -> false, new HeuristicCalculator());
+            Problem problem = new Problem(initial_state, new State.SuccessorsGenerator(), o -> false, new State.HeuristicCalculator());
 
             State best_solution = null;
             for(Search search : new Search[]{new HillClimbingSearch()}) {
