@@ -40,6 +40,9 @@ public class Slice {
     }
 
     public int getArea() {
+        if(r1 < 0 || r2 < 0 || c1 < 0 || c2 < 0) {
+            return 0;
+        }
         return (r2 - r1 + 1) * (c2 - c1 + 1);
     }
 
@@ -53,6 +56,9 @@ public class Slice {
     }
 
     public void writeIntoPizza(boolean used) {
+        if(r1 < 0 || r2 < 0 || c1 < 0 || c2 < 0) {
+            System.exit(1);
+        }
         State.pizza.setUsedArea(r1, r2, c1, c2, used);
     }
 
@@ -138,8 +144,9 @@ public class Slice {
 
     public ChangeLog removeSlice() {
         ChangeLog log = new ChangeLog(false);
-        log.modified_area = this;
-        log.remaining_area = new Slice(-1, 0, -1, 0);
+        log.modified_area = deep_copy();
+        log.remaining_area = new Slice(-1, -1, -1, -1);
+        log.remaining_area.id = id;
         log.was_possible = true;
         return log;
     }

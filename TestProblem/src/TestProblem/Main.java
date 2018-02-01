@@ -5,6 +5,7 @@ import aima.search.framework.Problem;
 import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
 import aima.search.informed.HillClimbingSearch;
+import aima.search.informed.SimulatedAnnealingSearch;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +15,12 @@ import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class Main {
+
+    private final static int iterations = 2000;
+    private final static int stiter = 1;
+    private final static int k = 100;
+    private final static double lamda = 0.005;
+
     public static void main(String[] args) {
 
         ArrayList<File> files = new ArrayList<>();
@@ -39,7 +46,13 @@ public class Main {
             Problem problem = new Problem(initial_state, new State.SuccessorsGenerator(), o -> false, new State.HeuristicCalculator());
 
             State best_solution = null;
-            for(Search search : new Search[]{new HillClimbingSearch()}) {
+
+            Search[] algorithms = new Search[]{
+                    new HillClimbingSearch(),
+                    new SimulatedAnnealingSearch(iterations, stiter, k, lamda)
+            };
+
+            for(Search search : algorithms) {
                 System.out.println("Starting local search using algorithm: " + search.getClass().getName());
                 long start_time = System.currentTimeMillis();
                 try {
@@ -60,6 +73,9 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+
+            System.out.println("-----------------------------");
+            System.out.println("-----------------------------");
 
             try {
                 PrintWriter output = new PrintWriter(f.getPath().replace(".in", ".out"), "UTF-8");

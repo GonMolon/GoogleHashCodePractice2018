@@ -82,6 +82,7 @@ public class State {
             generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
             generateSuccessor(id, slice -> slice.decreaseRight(), successors);
             generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
+            generateSuccessor(id, slice -> slice.removeSlice(), successors);
         }
         child = null;
         return successors;
@@ -129,7 +130,6 @@ public class State {
 
         @Override
         public List getSuccessors(Object o) {
-            System.out.println("Generating successors");
             State state = ((State) o);
             state.sync();
 
@@ -137,8 +137,6 @@ public class State {
             for(State child : state.generateSuccessors()) {
                 successors.add(new Successor("", child));
             }
-
-            System.out.println(successors.size() + " successors generated");
 
             return successors;
         }
@@ -148,7 +146,7 @@ public class State {
 
         @Override
         public double getHeuristicValue(Object state) {
-            return -((State) state).getArea();
+            return -((State) state).getArea()/pizza.getArea();
         }
     }
 
