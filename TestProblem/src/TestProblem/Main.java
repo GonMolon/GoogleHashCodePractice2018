@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    private final static int iterations = 2000;
+    private final static int iterations = 1000;
     private final static int stiter = 1;
     private final static int k = 100;
     private final static double lamda = 0.005;
@@ -27,7 +27,7 @@ public class Main {
         files.add(new File("TestProblem/test/example.in"));
         files.add(new File("TestProblem/test/small.in"));
         files.add(new File("TestProblem/test/medium.in"));
-        files.add(new File("TestProblem/test/big.in"));
+//        files.add(new File("TestProblem/test/big.in"));
 
         for(File f : files) {
 
@@ -44,42 +44,29 @@ public class Main {
             State initial_state = State.createInitialState(input);
 
             Problem problem = new Problem(initial_state, new State.SuccessorsGenerator(), o -> false, new State.HeuristicCalculator());
+            Search search = new SimulatedAnnealingSearch(iterations, stiter, k, lamda);
 
-            State best_solution = null;
+            System.out.println("Starting local search using algorithm: " + search.getClass().getName());
+            long start_time = System.currentTimeMillis();
+            try {
+                SearchAgent agent = new SearchAgent(problem, search);
+                long total_time = System.currentTimeMillis() - start_time;
 
-            Search[] algorithms = new Search[]{
-                    new HillClimbingSearch(),
-                    new SimulatedAnnealingSearch(iterations, stiter, k, lamda)
-            };
+                State final_state = ((State)search.getGoalState());
+                final_state.sync();
+                System.out.println("Area: " + final_state.getArea());
+                System.out.println("Success ratio: " + final_state.getArea() / State.pizza.getArea());
+                System.out.println("Num of slices: " + State.best_solution.size());
+                System.out.println("Execution time: " + total_time);
+                System.out.println("-----------------------------");
 
-            for(Search search : algorithms) {
-                System.out.println("Starting local search using algorithm: " + search.getClass().getName());
-                long start_time = System.currentTimeMillis();
-                try {
-                    SearchAgent agent = new SearchAgent(problem, search);
-                    long total_time = System.currentTimeMillis() - start_time;
-
-                    State final_state = ((State)search.getGoalState());
-                    System.out.println("Area: " + final_state.getArea());
-                    System.out.println("Success ratio: " + final_state.getArea() / State.pizza.getArea());
-                    System.out.println("Num of slices: " + final_state.getNumSlices());
-                    System.out.println("Execution time: " + total_time);
-                    System.out.println("-----------------------------");
-
-                    if(best_solution == null || best_solution.getArea() < final_state.getArea()) {
-                        best_solution = final_state;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            System.out.println("-----------------------------");
-            System.out.println("-----------------------------");
 
             try {
                 PrintWriter output = new PrintWriter(f.getPath().replace(".in", ".out"), "UTF-8");
-                output.println(best_solution.toString());
+                State.printBestSolution(output);
                 output.close();
             } catch (Exception e) {
                 e.printStackTrace();

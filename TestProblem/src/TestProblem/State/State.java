@@ -4,6 +4,7 @@ import aima.search.framework.HeuristicFunction;
 import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,8 @@ public class State {
     public static PizzaLayout pizza;
     public static int lastId = 0;
     public static HashMap<Integer, Slice> slices;
+    public static ArrayList<Slice> best_solution;
+    public static int best_area = -1;
 
     private int area;
     private boolean is_synced;
@@ -25,6 +28,8 @@ public class State {
 
         pizza = new PizzaLayout(input);
         slices = new HashMap<>();
+        best_area = 0;
+        best_solution = null;
 
         State state = new State();
         state.createInitialSlices();
@@ -56,15 +61,16 @@ public class State {
         return area;
     }
 
-    public int getNumSlices() {
-        return slices.size();
-    }
-
     public void sync() {
         if(!is_synced) {
             changeLog.apply();
         }
         is_synced = true;
+        if(area > best_area) {
+            best_solution = new ArrayList<>();
+            slices.values().forEach(slice -> best_solution.add(slice.deep_copy()));
+            best_area = area;
+        }
     }
 
     private State child = null;
@@ -74,16 +80,28 @@ public class State {
 
         child = shadow_copy();
         for(int id : slices.keySet()) {
-            generateSuccessor(id, slice -> slice.increaseTop(), successors);
-            generateSuccessor(id, slice -> slice.increaseBottom(), successors);
-            generateSuccessor(id, slice -> slice.increaseRight(), successors);
-            generateSuccessor(id, slice -> slice.increaseLeft(), successors);
-            generateSuccessor(id, slice -> slice.decreaseTop(), successors);
-            generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
-            generateSuccessor(id, slice -> slice.decreaseRight(), successors);
-            generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
+//            generateSuccessor(id, slice -> slice.increaseTop(), successors);
+//            generateSuccessor(id, slice -> slice.increaseBottom(), successors);
+//            generateSuccessor(id, slice -> slice.increaseRight(), successors);
+//            generateSuccessor(id, slice -> slice.increaseLeft(), successors);
+//            generateSuccessor(id, slice -> slice.decreaseTop(), successors);
+//            generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
+//            generateSuccessor(id, slice -> slice.decreaseRight(), successors);
+//            generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
             generateSuccessor(id, slice -> slice.removeSlice(), successors);
         }
+//        for(int i = 0; i < pizza.R; ++i) {
+//            for(int j = 0; j < pizza.C; ++j) {
+//                ChangeLog log = Slice.createSlice(lastId, i, j);
+//                if(log.was_possible) {
+//                    child.changeLog = log;
+//                    child.area += log.remaining_area.getArea();
+//
+//                    successors.add(child);
+//                    child = shadow_copy();
+//                }
+//            }
+//        }
         child = null;
         return successors;
     }
@@ -118,12 +136,11 @@ public class State {
         ChangeLog modify(Slice slice);
     }
 
-    public String toString() {
-        String s = slices.size() + "\n";
+    public static void printBestSolution(PrintWriter output) {
+        output.println(slices.size());
         for(Slice slice : slices.values()) {
-            s += slice.toString() + "\n";
+            output.println(slice.toString());
         }
-        return s;
     }
 
     public static class SuccessorsGenerator implements SuccessorFunction {
