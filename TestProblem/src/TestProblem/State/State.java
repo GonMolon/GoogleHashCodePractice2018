@@ -16,7 +16,7 @@ public class State {
     public static int lastId = 0;
     public static HashMap<Integer, Slice> slices;
     public static ArrayList<Slice> best_solution;
-    public static int best_area = -1;
+    public static int best_area;
 
     private int area;
     private boolean is_synced;
@@ -28,7 +28,7 @@ public class State {
 
         pizza = new PizzaLayout(input);
         slices = new HashMap<>();
-        best_area = 0;
+        best_area = -1;
         best_solution = null;
 
         State state = new State();
@@ -88,20 +88,20 @@ public class State {
 //            generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
 //            generateSuccessor(id, slice -> slice.decreaseRight(), successors);
 //            generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
-            generateSuccessor(id, slice -> slice.removeSlice(), successors);
+//            generateSuccessor(id, slice -> slice.removeSlice(), successors);
         }
-//        for(int i = 0; i < pizza.R; ++i) {
-//            for(int j = 0; j < pizza.C; ++j) {
-//                ChangeLog log = Slice.createSlice(lastId, i, j);
-//                if(log.was_possible) {
-//                    child.changeLog = log;
-//                    child.area += log.remaining_area.getArea();
-//
-//                    successors.add(child);
-//                    child = shadow_copy();
-//                }
-//            }
-//        }
+        for(int i = 0; i < pizza.R; ++i) {
+            for(int j = 0; j < pizza.C; ++j) {
+                ChangeLog log = Slice.createSlice(lastId, i, j);
+                if(log.was_possible) {
+                    child.changeLog = log;
+                    child.area += log.remaining_area.getArea();
+
+                    successors.add(child);
+                    child = shadow_copy();
+                }
+            }
+        }
         child = null;
         return successors;
     }
