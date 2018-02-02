@@ -4,7 +4,6 @@ import TestProblem.State.State;
 import aima.search.framework.Problem;
 import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
-import aima.search.informed.HillClimbingSearch;
 import aima.search.informed.SimulatedAnnealingSearch;
 
 import java.io.*;
@@ -16,7 +15,7 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    private final static int iterations = 1000;
+    private final static int iterations = 500;
     private final static int stiter = 1;
     private final static int k = 100;
     private final static double lamda = 0.005;

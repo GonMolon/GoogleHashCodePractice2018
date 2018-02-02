@@ -80,15 +80,15 @@ public class State {
 
         child = shadow_copy();
         for(int id : slices.keySet()) {
-//            generateSuccessor(id, slice -> slice.increaseTop(), successors);
-//            generateSuccessor(id, slice -> slice.increaseBottom(), successors);
-//            generateSuccessor(id, slice -> slice.increaseRight(), successors);
-//            generateSuccessor(id, slice -> slice.increaseLeft(), successors);
-//            generateSuccessor(id, slice -> slice.decreaseTop(), successors);
-//            generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
-//            generateSuccessor(id, slice -> slice.decreaseRight(), successors);
-//            generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
-//            generateSuccessor(id, slice -> slice.removeSlice(), successors);
+            generateSuccessor(id, slice -> slice.increaseTop(), successors);
+            generateSuccessor(id, slice -> slice.increaseBottom(), successors);
+            generateSuccessor(id, slice -> slice.increaseRight(), successors);
+            generateSuccessor(id, slice -> slice.increaseLeft(), successors);
+            generateSuccessor(id, slice -> slice.decreaseTop(), successors);
+            generateSuccessor(id, slice -> slice.decreaseBottom(), successors);
+            generateSuccessor(id, slice -> slice.decreaseRight(), successors);
+            generateSuccessor(id, slice -> slice.decreaseLeft(), successors);
+            generateSuccessor(id, slice -> slice.removeSlice(), successors);
         }
         for(int i = 0; i < pizza.R; ++i) {
             for(int j = 0; j < pizza.C; ++j) {

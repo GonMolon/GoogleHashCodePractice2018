@@ -211,7 +211,7 @@ public class Slice {
     }
 
     public String toString() {
-        return r1 + " " + r2 + " " + c1 + " " + c2;
+        return r1 + " " + c1 + " " + r2 + " " + c2;
     }
 
     public Slice deep_copy() {
