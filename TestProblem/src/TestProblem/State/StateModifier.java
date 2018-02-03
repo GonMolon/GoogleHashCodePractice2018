@@ -17,7 +17,7 @@ abstract class StateModifier implements RandomSelector.ProbabilityItem {
         return probability;
     }
 
-    public abstract ChangeLog modify(double seed);
+    public abstract ChangeLog modify();
 
 }
 
@@ -31,9 +31,9 @@ class StateSlicesModifier extends StateModifier {
     }
 
     @Override
-    public ChangeLog modify(double seed) {
+    public ChangeLog modify() {
         ArrayList<Integer> seq = new ArrayList<Integer>(State.slices.keySet());
-        Collections.shuffle(seq, new Random((long) (seed*100000)));
+        Collections.shuffle(seq);
 
         ChangeLog log = null;
         for(int id : seq) {
@@ -63,12 +63,12 @@ class StateSliceCreator extends StateModifier {
     }
 
     @Override
-    public ChangeLog modify(double seed) {
+    public ChangeLog modify() {
 
         ChangeLog log = null;
 
         boolean finish = false;
-        int i = (int) seed * PizzaLayout.R;
+        int i = (int) Math.random() * PizzaLayout.R;
         while(true) {
             for(int j = 0; j < PizzaLayout.C; ++j) {
                 log = Slice.createSlice(State.lastId, i, j);

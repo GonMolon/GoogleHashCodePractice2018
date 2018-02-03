@@ -8,7 +8,6 @@ import java.util.List;
 public class SuccessorGenerator {
 
     private RandomSelector modifiers;
-    public double seed;
 
     public static List createSuccessor(Object o) {
         State state = ((State) o);
@@ -31,7 +30,7 @@ public class SuccessorGenerator {
     }
 
     private SuccessorGenerator() {
-        seed = Math.random();
+
         List<StateModifier> modifiers = new ArrayList<>();
 
         modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::increaseTop));
@@ -53,12 +52,12 @@ public class SuccessorGenerator {
 
     public State generateSuccessor(State state) {
 
-        StateModifier modifier = (StateModifier) modifiers.popRandom();
+        StateModifier modifier = (StateModifier) modifiers.getRandom();
         if(modifier == null) {
             return null;
         }
 
-        ChangeLog log = modifier.modify(seed);
+        ChangeLog log = modifier.modify();
 
         if(log.was_possible) {
             State child = state.shadow_copy();
@@ -73,6 +72,7 @@ public class SuccessorGenerator {
 
             return child;
         } else {
+            modifiers.remove(modifier);
             return null;
         }
     }

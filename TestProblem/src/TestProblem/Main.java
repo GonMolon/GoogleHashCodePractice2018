@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    private final static int iterations = 3000;
+    private final static int iterations = 4000;
     private final static int stiter = 10000;
     private final static int k = 10000;
     private final static double lambda = 0.0005;

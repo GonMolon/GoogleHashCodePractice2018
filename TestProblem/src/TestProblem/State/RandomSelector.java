@@ -15,7 +15,7 @@ public class RandomSelector<T extends RandomSelector.ProbabilityItem> {
         }
     }
 
-    public T popRandom() {
+    public T getRandom() {
         if(list.size() == 0) {
             return null;
         }
@@ -25,8 +25,6 @@ public class RandomSelector<T extends RandomSelector.ProbabilityItem> {
         for(int i = 0; i < list.size(); ++i) {
             T item = list.get(i);
             if(accumulated + item.getProbability()/total_prob >= rand) {
-                total_prob -= item.getProbability();
-                list.remove(i);
                 return item;
             } else {
                 accumulated += item.getProbability()/total_prob;
@@ -35,6 +33,11 @@ public class RandomSelector<T extends RandomSelector.ProbabilityItem> {
         System.out.println("ERROR");
         System.exit(1);
         return null;
+    }
+
+    public void remove(StateModifier modifier) {
+        total_prob -= modifier.getProbability();
+        list.remove(modifier);
     }
 
 
