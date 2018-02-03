@@ -75,7 +75,7 @@ public class State {
 
         history.add((int)getArea());
         iterations.add(iterations.size()+1);
-        System.out.println(iterations.size());
+//        System.out.println(iterations.size());
 
         if(area > best_area) {
             best_solution = new ArrayList<>();

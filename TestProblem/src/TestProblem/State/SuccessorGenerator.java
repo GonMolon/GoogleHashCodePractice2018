@@ -33,19 +33,19 @@ public class SuccessorGenerator {
 
         List<StateModifier> modifiers = new ArrayList<>();
 
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::increaseTop));
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::increaseBottom));
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::increaseRight));
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::increaseLeft));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::increaseTop));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::increaseBottom));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::increaseRight));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::increaseLeft));
+//
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::decreaseTop));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::decreaseBottom));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::decreaseRight));
+        modifiers.add(new StateSlicesModifier(0.1*0.25, Slice::decreaseLeft));
 
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::decreaseTop));
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::decreaseBottom));
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::decreaseRight));
-        modifiers.add(new StateSlicesModifier(0.25*0.25, Slice::decreaseLeft));
+        modifiers.add(new StateSlicesModifier(0.3, Slice::removeSlice));
 
-        modifiers.add(new StateSlicesModifier(0.25, Slice::removeSlice));
-
-        modifiers.add(new StateSliceCreator(0.25));
+        modifiers.add(new StateSliceCreator(0.4));
 
         this.modifiers = new RandomSelector<>(modifiers);
     }

@@ -19,17 +19,17 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    private final static int iterations = 4000;
+    private final static int iterations = 50000;
     private final static int stiter = 10000;
-    private final static int k = 10000;
-    private final static double lambda = 0.0005;
+    private final static int k = 10000000;
+    private final static double lambda = 0.00005;
 
     public static void main(String[] args) {
 
         ArrayList<File> files = new ArrayList<>();
-//        files.add(new File("TestProblem/test/example.in"));
-//        files.add(new File("TestProblem/test/small.in"));
-//        files.add(new File("TestProblem/test/medium.in"));
+        files.add(new File("TestProblem/test/example.in"));
+        files.add(new File("TestProblem/test/small.in"));
+        files.add(new File("TestProblem/test/medium.in"));
         files.add(new File("TestProblem/test/big.in"));
 
         for(File f : files) {
