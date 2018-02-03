@@ -1,10 +1,14 @@
 package TestProblem;
 
 import TestProblem.State.State;
+import TestProblem.State.SuccessorGenerator;
 import aima.search.framework.Problem;
 import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
 import aima.search.informed.SimulatedAnnealingSearch;
+import org.knowm.xchart.QuickChart;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,18 +19,18 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    private final static int iterations = 500;
-    private final static int stiter = 1;
-    private final static int k = 100;
-    private final static double lamda = 0.005;
+    private final static int iterations = 3000;
+    private final static int stiter = 10000;
+    private final static int k = 10000;
+    private final static double lambda = 0.0005;
 
     public static void main(String[] args) {
 
         ArrayList<File> files = new ArrayList<>();
-        files.add(new File("TestProblem/test/example.in"));
-        files.add(new File("TestProblem/test/small.in"));
-        files.add(new File("TestProblem/test/medium.in"));
-//        files.add(new File("TestProblem/test/big.in"));
+//        files.add(new File("TestProblem/test/example.in"));
+//        files.add(new File("TestProblem/test/small.in"));
+//        files.add(new File("TestProblem/test/medium.in"));
+        files.add(new File("TestProblem/test/big.in"));
 
         for(File f : files) {
 
@@ -42,8 +46,8 @@ public class Main {
 
             State initial_state = State.createInitialState(input);
 
-            Problem problem = new Problem(initial_state, new State.SuccessorsGenerator(), o -> false, new State.HeuristicCalculator());
-            Search search = new SimulatedAnnealingSearch(iterations, stiter, k, lamda);
+            Problem problem = new Problem(initial_state, SuccessorGenerator::createSuccessor, o -> false, new State.HeuristicCalculator());
+            Search search = new SimulatedAnnealingSearch(iterations, stiter, k, lambda);
 
             System.out.println("Starting local search using algorithm: " + search.getClass().getName());
             long start_time = System.currentTimeMillis();
@@ -57,6 +61,10 @@ public class Main {
                 System.out.println("Success ratio: " + final_state.getArea() / State.pizza.getArea());
                 System.out.println("Num of slices: " + State.best_solution.size());
                 System.out.println("Execution time: " + total_time);
+
+                XYChart chart = QuickChart.getChart("History simmulated annealing", "iteration", "area", "y(x)", State.iterations, State.history);
+                new SwingWrapper(chart).displayChart();
+
                 System.out.println("-----------------------------");
 
             } catch (Exception e) {

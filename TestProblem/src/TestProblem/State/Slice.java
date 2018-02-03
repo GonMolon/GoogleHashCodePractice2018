@@ -206,7 +206,7 @@ public class Slice {
         return log;
     }
 
-    public interface  DimensionsModifier {
+    public interface DimensionsModifier {
         void modifyDimension(Slice slice);
     }
 
