@@ -11,7 +11,12 @@ public class RandomSelector<T extends RandomSelector.ProbabilityItem> {
         this.list = list;
         total_prob = 0;
         for(ProbabilityItem item : list) {
-            total_prob += item.getProbability();
+            double prob = item.getProbability();
+            if(prob >= 0) {
+                total_prob += item.getProbability();
+            } else {
+                list.remove(item);
+            }
         }
     }
 
@@ -30,9 +35,7 @@ public class RandomSelector<T extends RandomSelector.ProbabilityItem> {
                 accumulated += item.getProbability()/total_prob;
             }
         }
-        System.out.println("ERROR");
-        System.exit(1);
-        return null;
+        throw new RuntimeException();
     }
 
     public void remove(StateModifier modifier) {
